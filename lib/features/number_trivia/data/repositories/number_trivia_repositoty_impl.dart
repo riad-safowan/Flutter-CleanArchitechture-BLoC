@@ -4,10 +4,12 @@ import 'package:clean_architecture_block/core/errors/failures.dart';
 import 'package:clean_architecture_block/features/number_trivia/domain/repositories/number_trivia_repository.dart';
 import 'package:dartz/dartz.dart';
 
-import '../../../../core/platform/network_info.dart';
+import '../../../../core/network/network_info.dart';
 import '../datasources/number_trivia_local_datasource.dart';
 import '../datasources/number_trivia_remote_datasource.dart';
 import '../models/number_trivia_model.dart';
+
+typedef Future<NumberTriviaModel> _GetConcreteOrNumberTrivia();
 
 class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   final NumberTriviaRemoteDataSource remoteDataSource;
@@ -33,7 +35,7 @@ class NumberTriviaRepositoryImpl implements NumberTriviaRepository {
   }
 
   Future<Either<Failure, NumberTrivia>> _getNumberTrivia(
-      Future<NumberTriviaModel> Function() getConcreteOrNumberTrivia) async {
+      _GetConcreteOrNumberTrivia getConcreteOrNumberTrivia) async {
     if (await networkInfo.isConnected) {
       try {
         final remoteTrivia = await getConcreteOrNumberTrivia();
