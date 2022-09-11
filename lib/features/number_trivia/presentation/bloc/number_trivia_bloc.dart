@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -9,6 +10,7 @@ import '../../domain/usecases/get_concreate_number_trivia.dart';
 import '../../domain/usecases/get_random_number_trivia.dart';
 
 part 'number_trivia_event.dart';
+
 part 'number_trivia_state.dart';
 
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
@@ -27,40 +29,70 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
       required this.getRandomNumberTrivia,
       required this.inputConverter})
       : super(NumberTriviaInitial()) {
-    on<NumberTriviaEvent>((event, emit) {});
+    on<GetTriviaForConcreteNumber>((event, emit) {
+      final inputEither =
+          inputConverter.stringToUnsignedInteger(event.numberString);
+      inputEither.fold(
+        (failure) async* {
+          emit(NumberTriviaError(message: 'error'));
+        },
+        (integer) async* {
+          emit(NumberTriviaLoading());
+          final failureOrTrivia =
+              await getConcreteNumberTrivia(Params(number: integer));
 
-    @override
-    Stream<NumberTriviaState> mapEventToState(
-      NumberTriviaEvent event,
-    ) async* {
-      if (event is GetTriviaForConcreteNumber) {
-        final inputEither =
-            inputConverter.stringToUnsignedInteger(event.numberString);
-        inputEither.fold(
-          (failure) async* {
-            yield Error(message: 'error');
-          },
-          (integer) async* {
-            yield Loading();
-            final failureOrTrivia =
-                await getConcreteNumberTrivia(Params(number: integer));
-
-            failureOrTrivia.fold(
-              (failure) => Error(message: _mapFailureToMessage(failure)),
-              (trivia) => Loaded(trivia: trivia),
-            );
-          },
-        );
-      } else if (event is GetTriviaForRandomNumber) {
-        yield Loading();
-        final failureOrTrivia = await getRandomNumberTrivia(NoParams());
-        failureOrTrivia.fold(
-          (failure) => Error(message: _mapFailureToMessage(failure)),
-          (trivia) => Loaded(trivia: trivia),
-        );
-      }
-    }
+          failureOrTrivia.fold(
+              (failure) => emit(NumberTriviaError(message: 'error')),
+              (trivia) => emit(
+                    NumberTriviaLoaded(trivia: trivia),
+                  ));
+        },
+      );
+    });
+    on<GetTriviaForRandomNumber>((event, emit) async {
+      emit(NumberTriviaLoading());
+      final failureOrTrivia = await getRandomNumberTrivia(NoParams());
+      failureOrTrivia.fold(
+          (failure) =>
+              emit(NumberTriviaError(message: _mapFailureToMessage(failure))),
+          (trivia) => emit(
+                NumberTriviaLoaded(trivia: trivia),
+              ));
+    });
   }
+
+  //   @override
+  //   Stream<NumberTriviaState> mapEventToState(
+  //     NumberTriviaEvent event,
+  //   ) async* {
+  //     if (event is GetTriviaForConcreteNumber) {
+  //       final inputEither =
+  //           inputConverter.stringToUnsignedInteger(event.numberString);
+  //       inputEither.fold(
+  //         (failure) async* {
+  //           yield Error(message: 'error');
+  //         },
+  //         (integer) async* {
+  //           yield Loading();
+  //           final failureOrTrivia =
+  //               await getConcreteNumberTrivia(Params(number: integer));
+
+  //           failureOrTrivia.fold(
+  //             (failure) => Error(message: _mapFailureToMessage(failure)),
+  //             (trivia) => Loaded(trivia: trivia),
+  //           );
+  //         },
+  //       );
+  //     } else if (event is GetTriviaForRandomNumber) {
+  //       yield Loading();
+  //       final failureOrTrivia = await getRandomNumberTrivia(NoParams());
+  //       failureOrTrivia.fold(
+  //         (failure) => Error(message: _mapFailureToMessage(failure)),
+  //         (trivia) => Loaded(trivia: trivia),
+  //       );
+  //     }
+  //   }
+  // }
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
