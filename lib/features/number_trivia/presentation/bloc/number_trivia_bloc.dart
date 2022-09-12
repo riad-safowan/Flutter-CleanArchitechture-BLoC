@@ -29,14 +29,14 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
       required this.getRandomNumberTrivia,
       required this.inputConverter})
       : super(NumberTriviaInitial()) {
-    on<GetTriviaForConcreteNumber>((event, emit) {
+    on<GetTriviaForConcreteNumber>((event, emit) async {
       final inputEither =
           inputConverter.stringToUnsignedInteger(event.numberString);
       inputEither.fold(
-        (failure) async* {
+        (failure) {
           emit(NumberTriviaError(message: 'error'));
         },
-        (integer) async* {
+        (integer) async {
           emit(NumberTriviaLoading());
           final failureOrTrivia =
               await getConcreteNumberTrivia(Params(number: integer));
@@ -60,39 +60,6 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
               ));
     });
   }
-
-  //   @override
-  //   Stream<NumberTriviaState> mapEventToState(
-  //     NumberTriviaEvent event,
-  //   ) async* {
-  //     if (event is GetTriviaForConcreteNumber) {
-  //       final inputEither =
-  //           inputConverter.stringToUnsignedInteger(event.numberString);
-  //       inputEither.fold(
-  //         (failure) async* {
-  //           yield Error(message: 'error');
-  //         },
-  //         (integer) async* {
-  //           yield Loading();
-  //           final failureOrTrivia =
-  //               await getConcreteNumberTrivia(Params(number: integer));
-
-  //           failureOrTrivia.fold(
-  //             (failure) => Error(message: _mapFailureToMessage(failure)),
-  //             (trivia) => Loaded(trivia: trivia),
-  //           );
-  //         },
-  //       );
-  //     } else if (event is GetTriviaForRandomNumber) {
-  //       yield Loading();
-  //       final failureOrTrivia = await getRandomNumberTrivia(NoParams());
-  //       failureOrTrivia.fold(
-  //         (failure) => Error(message: _mapFailureToMessage(failure)),
-  //         (trivia) => Loaded(trivia: trivia),
-  //       );
-  //     }
-  //   }
-  // }
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
