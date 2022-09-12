@@ -7,8 +7,8 @@ import 'package:clean_architecture_block/features/number_trivia/presentation/blo
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/number_trivia/data/datasources/number_trivia_local_datasource.dart';
-import '../../features/number_trivia/data/datasources/number_trivia_remote_datasource.dart';
+import '../../features/number_trivia/data/datasources/local/number_trivia_local_datasource.dart';
+import '../../features/number_trivia/data/datasources/remote/number_trivia_remote_datasource.dart';
 import '../network/network_info.dart';
 
 final sl = GetIt.instance;

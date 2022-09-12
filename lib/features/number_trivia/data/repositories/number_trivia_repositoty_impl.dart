@@ -5,8 +5,8 @@ import 'package:clean_architecture_block/features/number_trivia/domain/repositor
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/network/network_info.dart';
-import '../datasources/number_trivia_local_datasource.dart';
-import '../datasources/number_trivia_remote_datasource.dart';
+import '../datasources/local/number_trivia_local_datasource.dart';
+import '../datasources/remote/number_trivia_remote_datasource.dart';
 import '../models/number_trivia_model.dart';
 
 typedef Future<NumberTriviaModel> _GetConcreteOrNumberTrivia();

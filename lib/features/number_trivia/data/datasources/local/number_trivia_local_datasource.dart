@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:clean_architecture_block/features/number_trivia/data/models/number_trivia_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/errors/exceptions.dart';
+import '../../../../../core/errors/exceptions.dart';
 
 abstract class NumberTriviaLocalDataSource {
   Future<NumberTriviaModel> getLastNumberTrivia();

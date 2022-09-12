@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -32,9 +31,10 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
     on<GetTriviaForConcreteNumber>((event, emit) async {
       final inputEither =
           inputConverter.stringToUnsignedInteger(event.numberString);
-      inputEither.fold(
+
+      await inputEither.fold(
         (failure) {
-          emit(NumberTriviaError(message: 'error'));
+          emit(NumberTriviaError(message: _mapFailureToMessage(failure)));
         },
         (integer) async {
           emit(NumberTriviaLoading());
@@ -42,7 +42,8 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
               await getConcreteNumberTrivia(Params(number: integer));
 
           failureOrTrivia.fold(
-              (failure) => emit(NumberTriviaError(message: 'error')),
+              (failure) => emit(
+                  NumberTriviaError(message: _mapFailureToMessage(failure))),
               (trivia) => emit(
                     NumberTriviaLoaded(trivia: trivia),
                   ));
@@ -67,6 +68,8 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
         return SERVER_FAILURE_MESSAGE;
       case CacheFailure:
         return CACHE_FAILURE_MESSAGE;
+      case InvalidInputFailure:
+        return INVALID_INPUT_FAILURE_MESSAGE;
       default:
         return 'Unexpected error';
     }
